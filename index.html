@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgroPulse – AI Canopy Analysis & Crop Yield Forecasting</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        /* ---------- RESET & BASE ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #0a1628;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* ---------- BUTTONS ---------- */
+        .btn-primary {
+            display: inline-block;
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            color: #fff;
+            font-weight: 600;
+            padding: 14px 36px;
+            border-radius: 40px;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(22, 163, 74, 0.35);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(22, 163, 74, 0.5);
+        }
+        .btn-secondary {
+            display: inline-block;
+            background: transparent;
+            color: #16a34a;
+            font-weight: 600;
+            padding: 14px 36px;
+            border-radius: 40px;
+            border: 2px solid #16a34a;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background: rgba(22, 163, 74, 0.06);
+        }
+        .btn-outline-light {
+            display: inline-block;
+            background: transparent;
+            color: #fff;
+            font-weight: 600;
+            padding: 10px 24px;
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.2);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-outline-light:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: #4ade80;
+        }
+        .btn-sm {
+            padding: 6px 16px;
+            border-radius: 30px;
+            border: 1px solid #d1d9e6;
+            background: #fff;
+            color: #475569;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .btn-sm:hover {
+            border-color: #16a34a;
+            color: #16a34a;
+        }
+        .btn-sm.active {
+            background: #16a34a;
+            color: #fff;
+            border-color: #16a34a;
+        }
+
+        /* ---------- HEADER / NAV ---------- */
+        header {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(22, 163, 74, 0.08);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 999;
+            padding: 10px 0;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: #0a1628;
+        }
+        .logo span {
+            color: #16a34a;
+        }
+        .logo .leaf-icon {
+            display: inline-block;
+            margin-right: 4px;
+            color: #16a34a;
+        }
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            list-style: none;
+            font-weight: 500;
+            color: #475569;
+        }
+        .nav-links a {
+            transition: color 0.2s;
+        }
+        .nav-links a:hover {
+            color: #16a34a;
+        }
+        .nav-links .btn-primary {
+            padding: 8px 22px;
+            font-size: 0.85rem;
+        }
+        .hamburger {
+            display: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #0a1628;
+        }
+
+        /* ---------- HERO ---------- */
+        .hero {
+            padding: 150px 0 80px;
+            background: linear-gradient(145deg, #f0fdf4 0%, #dcfce7 40%, #ffffff 100%);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '🌾';
+            position: absolute;
+            top: -5%;
+            right: -3%;
+            font-size: 20rem;
+            opacity: 0.04;
+            transform: rotate(10deg);
+        }
+        .hero .container {
+            position: relative;
+            z-index: 2;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: rgba(22, 163, 74, 0.10);
+            color: #16a34a;
+            padding: 6px 20px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(22, 163, 74, 0.12);
+        }
+        .hero-badge i {
+            margin-right: 8px;
+        }
+        .hero h1 {
+            font-size: 3.8rem;
+            font-weight: 800;
+            line-height: 1.12;
+            color: #0a1628;
+            max-width: 900px;
+            margin: 0 auto 20px;
+        }
+        .hero h1 .highlight {
+            background: linear-gradient(135deg, #16a34a, #4ade80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p {
+            font-size: 1.25rem;
+            color: #475569;
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .hero-stats {
+            margin-top: 50px;
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            flex-wrap: wrap;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            padding: 30px 40px;
+            border: 1px solid rgba(22, 163, 74, 0.08);
+        }
+        .hero-stats .stat-item {
+            text-align: center;
+        }
+        .hero-stats .stat-item .number {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: #16a34a;
+        }
+        .hero-stats .stat-item .label {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* ---------- SECTIONS GENERAL ---------- */
+        section {
+            padding: 80px 0;
+        }
+        .section-title {
+            font-size: 2.6rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 16px;
+            color: #0a1628;
+        }
+        .section-title .highlight {
+            background: linear-gradient(135deg, #16a34a, #4ade80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .section-sub {
+            text-align: center;
+            color: #64748b;
+            max-width: 720px;
+            margin: 0 auto 50px;
+            font-size: 1.2rem;
+        }
+        .section-light {
+            background: #ffffff;
+        }
+        .section-green {
+            background: #f0fdf4;
+        }
+
+        /* ---------- WHAT WE DO ---------- */
+        .what-we-do {
+            background: #ffffff;
+        }
+        .wwd-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+        .wwd-grid .text h3 {
+            font-size: 1.8rem;
+            margin-bottom: 16px;
+            color: #0a1628;
+        }
+        .wwd-grid .text p {
+            color: #475569;
+            margin-bottom: 16px;
+        }
+        .wwd-grid .visual {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgba(22, 163, 74, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+        .wwd-grid .visual .leaf-bg {
+            position: absolute;
+            font-size: 12rem;
+            opacity: 0.04;
+            right: -20px;
+            bottom: -30px;
+            transform: rotate(-10deg);
+        }
+        .wwd-grid .visual i {
+            font-size: 4rem;
+            color: #16a34a;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 2;
+        }
+        .wwd-grid .visual p {
+            color: #475569;
+            position: relative;
+            z-index: 2;
+        }
+        .wwd-grid .visual .highlight-text {
+            color: #16a34a;
+            font-weight: 600;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ---------- PLATFORM (AI FEATURES) ---------- */
+        .platform {
+            background: #f0fdf4;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .feature-card {
+            background: #ffffff;
+            padding: 32px 24px;
+            border-radius: 20px;
+            border: 1px solid rgba(22, 163, 74, 0.06);
+            transition: 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #16a34a, #4ade80);
+            opacity: 0;
+            transition: 0.3s;
+        }
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+        .feature-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(22, 163, 74, 0.08);
+            border-color: rgba(22, 163, 74, 0.12);
+        }
+        .feature-card .icon-wrapper {
+            width: 56px;
+            height: 56px;
+            background: #f0fdf4;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        .feature-card .icon-wrapper i {
+            font-size: 1.8rem;
+            color: #16a34a;
+        }
+        .feature-card h4 {
+            font-size: 1.2rem;
+            color: #0a1628;
+            margin-bottom: 10px;
+        }
+        .feature-card p {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+        .feature-card .tag {
+            display: inline-block;
+            background: #f0fdf4;
+            color: #16a34a;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 12px;
+            border-radius: 20px;
+            margin-top: 12px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* ---------- FIELD DASHBOARD SIMULATOR ---------- */
+        .field-dash {
+            background: #ffffff;
+            padding: 60px 0;
+        }
+        .field-dash .container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+        .field-dash .dash-main {
+            background: #f0fdf4;
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid rgba(22, 163, 74, 0.06);
+        }
+        .field-dash .dash-main .dash-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        .field-dash .dash-main .dash-header .status-text i {
+            color: #22c55e;
+            margin-right: 8px;
+        }
+        .field-dash .dash-main .canopy-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 3px;
+            margin-bottom: 16px;
+        }
+        .field-dash .dash-main .canopy-grid .cell {
+            aspect-ratio: 1;
+            border-radius: 3px;
+            transition: 0.3s;
+            position: relative;
+            cursor: pointer;
+        }
+        .field-dash .dash-main .canopy-grid .cell.healthy { background: #22c55e; }
+        .field-dash .dash-main .canopy-grid .cell.moderate { background: #facc15; }
+        .field-dash .dash-main .canopy-grid .cell.stressed { background: #f97316; }
+        .field-dash .dash-main .canopy-grid .cell.critical { background: #ef4444; }
+        .field-dash .dash-main .canopy-grid .cell.bare { background: #d1d5db; }
+        .field-dash .dash-main .canopy-grid .cell:hover {
+            transform: scale(1.3);
+            z-index: 2;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .field-dash .dash-main .canopy-legend {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .field-dash .dash-main .canopy-legend .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .field-dash .dash-main .canopy-legend .legend-item .swatch {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+        .field-dash .dash-main .canopy-legend .legend-item .swatch.healthy { background: #22c55e; }
+        .field-dash .dash-main .canopy-legend .legend-item .swatch.moderate { background: #facc15; }
+        .field-dash .dash-main .canopy-legend .legend-item .swatch.stressed { background: #f97316; }
+        .field-dash .dash-main .canopy-legend .legend-item .swatch.critical { background: #ef4444; }
+        .field-dash .dash-main .canopy-legend .legend-item .swatch.bare { background: #d1d5db; }
+        .field-dash .dash-main .sensor-readings {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .field-dash .dash-main .sensor-readings .sensor-item {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 10px 12px;
+            border: 1px solid rgba(22, 163, 74, 0.06);
+            text-align: center;
+        }
+        .field-dash .dash-main .sensor-readings .sensor-item .sensor-label {
+            font-size: 0.65rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .field-dash .dash-main .sensor-readings .sensor-item .sensor-value {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #0a1628;
+        }
+        .field-dash .dash-main .sensor-readings .sensor-item .sensor-value span {
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: #64748b;
+        }
+        .field-dash .dash-sidebar {
+            background: #f0fdf4;
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid rgba(22, 163, 74, 0.06);
+        }
+        .field-dash .dash-sidebar h4 {
+            color: #0a1628;
+            margin-bottom: 16px;
+            font-size: 1.1rem;
+        }
+        .field-dash .dash-sidebar .metric-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(22, 163, 74, 0.06);
+            font-size: 0.9rem;
+            color: #475569;
+        }
+        .field-dash .dash-sidebar .metric-item:last-child {
+            border-bottom: none;
+        }
+        .field-dash .dash-sidebar .metric-item .value {
+            font-weight: 700;
+        }
+        .field-dash .dash-sidebar .metric-item .value.good { color: #22c55e; }
+        .field-dash .dash-sidebar .metric-item .value.warning { color: #f59e0b; }
+        .field-dash .dash-sidebar .metric-item .value.danger { color: #ef4444; }
+        .field-dash .dash-sidebar .alert-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(22, 163, 74, 0.06);
+            color: #475569;
+            font-size: 0.85rem;
+        }
+        .field-dash .dash-sidebar .alert-item:last-child {
+            border-bottom: none;
+        }
+        .field-dash .dash-sidebar .alert-item .alert-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+        }
+        .field-dash .dash-sidebar .alert-item .alert-icon.danger {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+        .field-dash .dash-sidebar .alert-item .alert-icon.warning {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+        .field-dash .dash-sidebar .alert-item .alert-icon.success {
+            background: #dcfce7;
+            color: #22c55e;
+        }
+        .field-dash .dash-sidebar .alert-item .alert-time {
+            margin-left: auto;
+            font-size: 0.7rem;
+            color: #94a3b8;
+        }
+        .field-dash .dash-sidebar .harvest-bar {
+            margin-top: 12px;
+            padding: 12px 16px;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid rgba(22, 163, 74, 0.06);
+        }
+        .field-dash .dash-sidebar .harvest-bar .bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        .field-dash .dash-sidebar .harvest-bar .bar-track {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+        .field-dash .dash-sidebar .harvest-bar .bar-track .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #16a34a, #4ade80);
+            border-radius: 4px;
+            transition: width 1s ease;
+            width: 78%;
+        }
+
+        /* ---------- WHY AGROPULSE ---------- */
+        .why {
+            background: #f0fdf4;
+        }
+        .why-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+            text-align: center;
+        }
+        .why-grid .why-item {
+            padding: 30px 20px;
+            border-radius: 20px;
+            background: #ffffff;
+            border: 1px solid rgba(22, 163, 74, 0.06);
+            transition: 0.3s;
+        }
+        .why-grid .why-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(22, 163, 74, 0.06);
+        }
+        .why-grid .why-item .number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #16a34a;
+        }
+        .why-grid .why-item p {
+            color: #475569;
+            font-weight: 500;
+        }
+
+        /* ---------- WHO WE SERVE ---------- */
+        .serve {
+            background: #ffffff;
+        }
+        .serve-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+        }
+        .serve-card {
+            background: #f0fdf4;
+            padding: 30px 20px;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid rgba(22, 163, 74, 0.04);
+            transition: 0.3s;
+        }
+        .serve-card:hover {
+            border-color: rgba(22, 163, 74, 0.12);
+            transform: translateY(-4px);
+        }
+        .serve-card i {
+            font-size: 2.6rem;
+            color: #16a34a;
+            margin-bottom: 12px;
+        }
+        .serve-card h4 {
+            font-size: 1.2rem;
+            color: #0a1628;
+        }
+        .serve-card p {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        /* ---------- TESTIMONIALS ---------- */
+        .testimonials {
+            background: #f0fdf4;
+        }
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+        .testimonial-card {
+            background: #ffffff;
+            padding: 28px 24px;
+            border-radius: 20px;
+            border: 1px solid rgba(22, 163, 74, 0.06);
+        }
+        .testimonial-card .quote {
+            font-size: 1rem;
+            color: #334155;
+            margin-bottom: 16px;
+            font-style: italic;
+        }
+        .testimonial-card .author {
+            font-weight: 600;
+            color: #0a1628;
+        }
+        .testimonial-card .role {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        .testimonial-card .stars {
+            color: #f59e0b;
+            margin-bottom: 12px;
+            letter-spacing: 2px;
+        }
+
+        /* ---------- TEAM ---------- */
+        .team {
+            background: #ffffff;
+        }
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 35px;
+        }
+        .team-card {
+            text-align: center;
+            background: #f0fdf4;
+            padding: 28px 20px 24px;
+            border-radius: 24px;
+            transition: 0.3s ease;
+            border: 1px solid transparent;
+        }
+        .team-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(22, 163, 74, 0.12);
+            box-shadow: 0 20px 40px rgba(22, 163, 74, 0.06);
+        }
+        .team-card .avatar-img {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #fff;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+            margin-bottom: 14px;
+        }
+        .team-card h4 {
+            font-size: 1.1rem;
+            color: #0a1628;
+            margin-bottom: 2px;
+        }
+        .team-card .title {
+            color: #16a34a;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .team-card .bio {
+            color: #64748b;
+            font-size: 0.85rem;
+            margin: 8px 0 12px;
+        }
+        .team-card .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+        .team-card .social-icons a {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            transition: 0.2s;
+        }
+        .team-card .social-icons a:hover {
+            color: #16a34a;
+        }
+
+        /* ---------- CONTACT ---------- */
+        .contact {
+            background: #f0fdf4;
+        }
+        .contact-wrap {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+        }
+        .contact-form input,
+        .contact-form textarea,
+        .contact-form select {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid #d1d9e6;
+            border-radius: 12px;
+            font-size: 1rem;
+            margin-bottom: 16px;
+            background: #ffffff;
+            color: #0a1628;
+            transition: 0.2s;
+        }
+        .contact-form input:focus,
+        .contact-form textarea:focus,
+        .contact-form select:focus {
+            border-color: #16a34a;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.08);
+        }
+        .contact-form textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .contact-form select option {
+            background: #ffffff;
+        }
+        .contact-info p {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #475569;
+        }
+        .contact-info i {
+            width: 24px;
+            color: #16a34a;
+        }
+        .contact-info .emergency-box {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 16px;
+            border-left: 4px solid #ef4444;
+            margin-top: 20px;
+        }
+        .contact-info .emergency-box h4 {
+            color: #ef4444;
+        }
+
+        /* ---------- GET STARTED ---------- */
+        .get-started {
+            background: linear-gradient(135deg, #0a1628, #14532d);
+            color: #fff;
+            text-align: center;
+        }
+        .get-started h2 {
+            font-size: 2.6rem;
+        }
+        .get-started h2 .highlight {
+            background: linear-gradient(135deg, #4ade80, #16a34a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .get-started p {
+            color: #94a3b8;
+            max-width: 600px;
+            margin: 16px auto 32px;
+        }
+        .get-started .steps {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            margin: 40px 0 30px;
+        }
+        .get-started .steps .step {
+            flex: 1 1 180px;
+        }
+        .get-started .steps .step .num {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: #4ade80;
+        }
+        .get-started .steps .step h4 {
+            color: #fff;
+        }
+        .get-started .steps .step p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+
+        /* ---------- FOOTER ---------- */
+        footer {
+            background: #060e14;
+            color: #94a3b8;
+            padding: 40px 0 20px;
+            border-top: 1px solid rgba(22, 163, 74, 0.06);
+        }
+        footer .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        footer .footer-grid h4 {
+            color: #fff;
+            margin-bottom: 12px;
+        }
+        footer .footer-grid a {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+            transition: 0.2s;
+        }
+        footer .footer-grid a:hover {
+            color: #4ade80;
+        }
+        footer .bottom {
+            border-top: 1px solid rgba(255,255,255,0.04);
+            padding-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+        }
+        footer .social i {
+            font-size: 1.4rem;
+            margin-left: 16px;
+            transition: 0.2s;
+        }
+        footer .social i:hover {
+            color: #4ade80;
+        }
+
+        /* ---------- RESPONSIVE ---------- */
+        @media (max-width: 1024px) {
+            .field-dash .container {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 900px) {
+            .hero h1 { font-size: 2.6rem; }
+            .wwd-grid { grid-template-columns: 1fr; }
+            .contact-wrap { grid-template-columns: 1fr; }
+            footer .footer-grid { grid-template-columns: 1fr 1fr; }
+            .field-dash .dash-main .canopy-grid {
+                grid-template-columns: repeat(8, 1fr);
+            }
+        }
+        @media (max-width: 700px) {
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                background: #ffffff;
+                position: absolute;
+                top: 64px;
+                left: 0;
+                width: 100%;
+                padding: 30px 24px;
+                gap: 18px;
+                border-bottom: 1px solid rgba(22, 163, 74, 0.08);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.04);
+            }
+            .nav-links.open {
+                display: flex;
+            }
+            .hamburger {
+                display: block;
+            }
+            .hero {
+                padding: 120px 0 60px;
+            }
+            .hero h1 { font-size: 2rem; }
+            .hero-stats {
+                gap: 30px;
+                padding: 20px;
+            }
+            .why-grid { grid-template-columns: 1fr 1fr; }
+            .testimonial-grid { grid-template-columns: 1fr; }
+            footer .footer-grid { grid-template-columns: 1fr; }
+            .field-dash .dash-main .canopy-grid {
+                grid-template-columns: repeat(6, 1fr);
+                gap: 2px;
+            }
+            .field-dash .dash-main .sensor-readings {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header>
+        <nav class="container">
+            <div class="logo"><span class="leaf-icon">🌾</span>Agro<span>Pulse</span></div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#what">What We Do</a></li>
+                <li><a href="#platform">Platform</a></li>
+                <li><a href="#why">Why AgroPulse</a></li>
+                <li><a href="#serve">Who We Serve</a></li>
+                <li><a href="#testimonials">Testimonials</a></li>
+                <li><a href="#team">Team</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="#getstarted" class="btn-primary">Get Started</a></li>
+            </ul>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-badge"><i class="fas fa-satellite"></i> Satellite • Drone • Soil Sensors • AI-Powered</div>
+            <h1>See Every Leaf. <span class="highlight">Predict Every Harvest.</span></h1>
+            <p>AI-powered canopy analysis that ingests satellite imagery, multispectral drone data, and soil sensors — diagnosing nutrient deficiencies at the leaf level and forecasting precise harvest dates.</p>
+            <div class="hero-buttons">
+                <a href="#getstarted" class="btn-primary"><i class="fas fa-seedling"></i> Start Free Trial</a>
+                <a href="#platform" class="btn-secondary">Explore the Platform</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="number">97%</div>
+                    <div class="label">Yield Forecast Accuracy</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number">23%</div>
+                    <div class="label">Average Yield Increase</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number">1.2M+</div>
+                    <div class="label">Acres Monitored</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== WHAT WE DO ===== -->
+    <section id="what" class="what-we-do">
+        <div class="container">
+            <div class="wwd-grid">
+                <div class="text">
+                    <h3>From <span style="color:#16a34a;">Leaf-Level</span> to Field-Wide Intelligence</h3>
+                    <p><strong>The Challenge:</strong> Traditional crop scouting is slow and incomplete. By the time nutrient deficiencies or disease are visible to the human eye, yield losses are already locked in — and harvest timing is often guesswork.</p>
+                    <p><strong>The AgroPulse Solution:</strong> Our computer vision AI analyzes <strong>multispectral imagery at the individual leaf level</strong>, detecting nutrient deficiencies, disease pressure, and water stress weeks before visible symptoms appear. Simultaneously, our yield forecasting models integrate <strong>satellite data, drone imagery, and soil sensor readings</strong> to predict harvest dates and volumes with 97% accuracy.</p>
+                    <p style="font-weight:600; color:#16a34a;">✅ Leaf-Level Detection • ✅ 97% Forecast Accuracy • ✅ Precision Harvest Timing</p>
+                </div>
+                <div class="visual">
+                    <div class="leaf-bg">🍃</div>
+                    <i class="fas fa-leaf"></i>
+                    <p style="font-size:1.2rem; font-weight:600; color:#0a1628;">Computer Vision Canopy Analysis</p>
+                    <p><span class="highlight-text">🛰️ Satellite Data</span> → <span class="highlight-text">🚁 Drone Imagery</span> → <span class="highlight-text">🌱 Leaf-Level AI</span></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== PLATFORM (AI FEATURES) ===== -->
+    <section id="platform" class="platform">
+        <div class="container">
+            <h2 class="section-title">The <span class="highlight">Agronomic AI</span> Stack</h2>
+            <p class="section-sub">Four AI layers that transform field data into maximum harvest value.</p>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon-wrapper"><i class="fas fa-leaf"></i></div>
+                    <h4>Leaf-Level Canopy Analysis</h4>
+                    <p>Computer vision analyzes multispectral imagery at the individual leaf level — detecting nutrient deficiencies (N, P, K), disease pressure, and water stress weeks before visible symptoms.</p>
+                    <span class="tag">Computer Vision • Leaf-Level</span>
+                </div>
+                <div class="feature-card">
+                    <div class="icon-wrapper"><i class="fas fa-satellite"></i></div>
+                    <h4>Multi-Source Data Fusion</h4>
+                    <p>AI integrates satellite imagery, drone multispectral data, and IoT soil sensors into a unified crop health model — providing a complete picture from root to canopy.</p>
+                    <span class="tag">Sensor Fusion</span>
+                </div>
+                <div class="feature-card">
+                    <div class="icon-wrapper"><i class="fas fa-chart-line"></i></div>
+                    <h4>Precise Yield Forecasting</h4>
+                    <p>Deep learning models predict harvest dates, volumes, and quality grades with 97% accuracy — enabling optimal labor, storage, and logistics planning.</p>
+                    <span class="tag">Predictive AI</span>
+                </div>
+                <div class="feature-card">
+                    <div class="icon-wrapper"><i class="fas fa-map-marked-alt"></i></div>
+                    <h4>Variable-Rate Prescription Maps</h4>
+                    <p>AI generates precision prescription maps for fertilizer, irrigation, and pesticide application — reducing input costs while maximizing yield potential.</p>
+                    <span class="tag">Precision Ag</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FIELD DASHBOARD SIMULATOR ===== -->
+    <section class="field-dash">
+        <div class="container">
+            <div class="dash-main">
+                <div class="dash-header">
+                    <span class="status-text"><i class="fas fa-circle" style="color:#22c55e;"></i> LIVE — AgroPulse Field Monitor</span>
+                    <span style="color:#64748b;">AI Confidence: 97.2%</span>
+                </div>
+                <div class="canopy-grid" id="canopyGrid">
+                    <!-- Populated by JavaScript -->
+                </div>
+                <div class="canopy-legend">
+                    <span class="legend-item"><span class="swatch healthy"></span> Healthy</span>
+                    <span class="legend-item"><span class="swatch moderate"></span> Moderate Stress</span>
+                    <span class="legend-item"><span class="swatch stressed"></span> High Stress</span>
+                    <span class="legend-item"><span class="swatch critical"></span> Critical</span>
+                    <span class="legend-item"><span class="swatch bare"></span> Bare Soil</span>
+                </div>
+                <div class="sensor-readings">
+                    <div class="sensor-item">
+                        <div class="sensor-label">Soil Moisture</div>
+                        <div class="sensor-value" id="soilMoisture">34 <span>%</span></div>
+                    </div>
+                    <div class="sensor-item">
+                        <div class="sensor-label">Soil Temp</div>
+                        <div class="sensor-value" id="soilTemp">22 <span>°C</span></div>
+                    </div>
+                    <div class="sensor-item">
+                        <div class="sensor-label">Nitrogen (N)</div>
+                        <div class="sensor-value" id="nitrogen">42 <span>ppm</span></div>
+                    </div>
+                    <div class="sensor-item">
+                        <div class="sensor-label">NDVI Index</div>
+                        <div class="sensor-value" id="ndvi">0.78</div>
+                    </div>
+                    <div class="sensor-item">
+                        <div class="sensor-label">Canopy Temp</div>
+                        <div class="sensor-value" id="canopyTemp">26 <span>°C</span></div>
+                    </div>
+                    <div class="sensor-item">
+                        <div class="sensor-label">Humidity</div>
+                        <div class="sensor-value" id="humidity">62 <span>%</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="dash-sidebar">
+                <h4><i class="fas fa-chart-bar" style="color:#16a34a;"></i> Field Metrics</h4>
+                <div class="metric-item"><span>🌱 Canopy Health</span><span class="value good" id="canopyHealth">87%</span></div>
+                <div class="metric-item"><span>💧 Water Stress</span><span class="value warning" id="waterStress">18%</span></div>
+                <div class="metric-item"><span>🍃 Disease Risk</span><span class="value good" id="diseaseRisk">Low</span></div>
+                <div class="metric-item"><span>📊 Est. Yield</span><span class="value good" id="estYield">94%</span></div>
+                <div style="margin-top:12px;">
+                    <h4><i class="fas fa-bell" style="color:#16a34a;"></i> Field Alerts</h4>
+                    <div id="dashAlerts">
+                        <div class="alert-item">
+                            <span class="alert-icon warning"><i class="fas fa-exclamation-triangle"></i></span>
+                            <div><strong style="color:#f59e0b;">Nitrogen Deficiency</strong><br />Zone 4 — Apply 40kg/ha</div>
+                            <span class="alert-time">2 min ago</span>
+                        </div>
+                        <div class="alert-item">
+                            <span class="alert-icon success"><i class="fas fa-check"></i></span>
+                            <div><strong style="color:#22c55e;">Optimal Irrigation</strong><br />Zone 2 — Moisture at 34%</div>
+                            <span class="alert-time">8 min ago</span>
+                        </div>
+                        <div class="alert-item">
+                            <span class="alert-icon warning"><i class="fas fa-exclamation-triangle"></i></span>
+                            <div><strong style="color:#f59e0b;">Pest Pressure Rising</strong><br />Zone 7 — Scouting advised</div>
+                            <span class="alert-time">15 min ago</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="harvest-bar">
+                    <div class="bar-label">
+                        <span>Harvest Readiness</span>
+                        <span id="harvestLabel">78%</span>
+                    </div>
+                    <div class="bar-track"><div class="fill" id="harvestFill" style="width:78%;"></div></div>
+                    <div style="font-size:0.7rem; color:#94a3b8; margin-top:4px;">
+                        <i class="fas fa-calendar"></i> Est. harvest: <strong>12 days</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== WHY AGROPULSE ===== -->
+    <section id="why" class="why">
+        <div class="container">
+            <h2 class="section-title">The <span class="highlight">Agronomic Impact</span> of AgroPulse</h2>
+            <p class="section-sub">Real outcomes from commercial farms using our platform.</p>
+            <div class="why-grid">
+                <div class="why-item">
+                    <div class="number">97%</div>
+                    <p>Yield forecast accuracy — enabling precise harvest planning</p>
+                </div>
+                <div class="why-item">
+                    <div class="number">23%</div>
+                    <p>Average yield increase through precision interventions</p>
+                </div>
+                <div class="why-item">
+                    <div class="number">31%</div>
+                    <p>Reduction in fertilizer and input costs</p>
+                </div>
+                <div class="why-item">
+                    <div class="number">1.2M+</div>
+                    <p>Acres monitored across global farms</p>
+                </div>
+            </div>
+            <div style="text-align:center; margin-top:30px; background:#dcfce7; padding:24px; border-radius:20px; border:1px solid rgba(22,163,74,0.08);">
+                <p style="font-size:1.1rem; font-weight:500; color:#16a34a;"><i class="fas fa-seedling"></i> "Every 1% improvement in yield accuracy adds up to millions in additional revenue."</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== WHO WE SERVE ===== -->
+    <section id="serve" class="serve">
+        <div class="container">
+            <h2 class="section-title">Built for <span class="highlight">Commercial Agriculture</span></h2>
+            <p class="section-sub">AgroPulse empowers every stakeholder in modern farming.</p>
+            <div class="serve-grid">
+                <div class="serve-card">
+                    <i class="fas fa-tractor"></i>
+                    <h4>Commercial Farmers</h4>
+                    <p>Maximize yield and minimize input costs with leaf-level crop intelligence and precise harvest timing.</p>
+                </div>
+                <div class="serve-card">
+                    <i class="fas fa-users"></i>
+                    <h4>Farm Cooperatives</h4>
+                    <p>Aggregate field data across members for collective insights, shared logistics, and better market timing.</p>
+                </div>
+                <div class="serve-card">
+                    <i class="fas fa-industry"></i>
+                    <h4>Agribusiness & Processors</h4>
+                    <p>Forecast raw material supply with 97% accuracy — optimizing procurement and processing schedules.</p>
+                </div>
+                <div class="serve-card">
+                    <i class="fas fa-chart-pie"></i>
+                    <h4>Ag Investment & Insurance</h4>
+                    <p>Quantify crop risk and yield potential with objective, data-driven field analytics.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== TESTIMONIALS ===== -->
+    <section id="testimonials" class="testimonials">
+        <div class="container">
+            <h2 class="section-title">What <span class="highlight">Farmers</span> Say</h2>
+            <p class="section-sub">Trusted by commercial growers worldwide.</p>
+            <div class="testimonial-grid">
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p class="quote">“AgroPulse detected a nitrogen deficiency 3 weeks before we could see it. We applied a precision fertilizer treatment and saved the crop. Yield was up 19% that season.”</p>
+                    <p class="author">— John Miller</p>
+                    <p class="role">Owner, Miller Family Farms (4,200 acres, Iowa)</p>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p class="quote">“The yield forecast is incredibly accurate. We planned our harvest crews and storage logistics two weeks in advance — and the estimate was within 2% of actual production.”</p>
+                    <p class="author">— Maria Gonzalez</p>
+                    <p class="role">Operations Director, Central Valley Growers (12,000 acres, California)</p>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p class="quote">“We reduced fertilizer costs by 31% while increasing yield. AgroPulse's variable-rate prescription maps are the most valuable tool we've added in a decade.”</p>
+                    <p class="author">— Dr. Klaus Weber</p>
+                    <p class="role">Agronomist, Bavarian Grain Cooperative (Germany)</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== TEAM ===== -->
+    <section id="team" class="team">
+        <div class="container">
+            <h2 class="section-title">The <span class="highlight">Agronomic AI</span> Team</h2>
+            <p class="section-sub">Agronomists, AI researchers, and agricultural engineers united to feed the world.</p>
+            <div class="team-grid">
+                <div class="team-card">
+                    <img src="https://randomuser.me/api/portraits/men/42.jpg" alt="Dr. James Okafor" class="avatar-img" />
+                    <h4>Dr. James Okafor</h4>
+                    <p class="title">CEO & Co-Founder</p>
+                    <p class="bio">Agronomist with 20+ years in precision agriculture. Former USDA researcher.</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-x-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="team-card">
+                    <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Dr. Emily Zhang" class="avatar-img" />
+                    <h4>Dr. Emily Zhang</h4>
+                    <p class="title">CTO & Co-Founder</p>
+                    <p class="bio">AI/ML expert specializing in computer vision for agricultural remote sensing.</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                <div class="team-card">
+                    <img src="https://randomuser.me/api/portraits/men/55.jpg" alt="Robert Kim" class="avatar-img" />
+                    <h4>Robert Kim</h4>
+                    <p class="title">Head of Field Operations</p>
+                    <p class="bio">Precision ag specialist. Has deployed sensor networks on 500K+ acres across 4 continents.</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="team-card">
+                    <img src="https://randomuser.me/api/portraits/women/82.jpg" alt="Dr. Maria Santos" class="avatar-img" />
+                    <h4>Dr. Maria Santos</h4>
+                    <p class="title">VP of Product</p>
+                    <p class="bio">Agricultural engineer turned product leader. Passionate about AI for food security.</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-x-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CONTACT ===== -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2 class="section-title">Ready to <span class="highlight">Optimize</span> Your Harvest?</h2>
+            <p class="section-sub">Tell us about your farm, and we'll show you how AgroPulse can help.</p>
+            <div class="contact-wrap">
+                <form class="contact-form" id="contactForm">
+                    <input type="text" placeholder="Full Name" required />
+                    <input type="text" placeholder="Farm / Company Name" required />
+                    <input type="email" placeholder="Work Email" required />
+                    <input type="tel" placeholder="Phone Number" />
+                    <select>
+                        <option value="">Select your primary role</option>
+                        <option>Commercial Farmer</option>
+                        <option>Farm Cooperative Manager</option>
+                        <option>Agribusiness / Processor</option>
+                        <option>Ag Investment / Insurance</option>
+                        <option>Agronomist / Consultant</option>
+                    </select>
+                    <input type="text" placeholder="Approximate farm acreage" />
+                    <textarea placeholder="Describe your crop management challenges (nutrient deficiency, disease, harvest timing, etc.)"></textarea>
+                    <button type="submit" class="btn-primary" style="width:100%;"><i class="fas fa-seedling"></i> Request a Demo</button>
+                </form>
+                <div class="contact-info">
+                    <p><i class="fas fa-envelope"></i> info@agropulse.ai</p>
+                    <p><i class="fas fa-phone-alt"></i> +1 (888) 555-CROP (2767) – 24/7 support</p>
+                    <p><i class="fas fa-map-pin"></i> 440 Harvest Boulevard, Suite 300, Des Moines, IA 50309</p>
+                    <div class="emergency-box">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Urgent Crop Emergency</h4>
+                        <p>For active disease outbreaks or severe weather impacts on crops, our agronomist response team is available 24/7. <strong>We prioritize crop loss prevention.</strong></p>
+                        <p style="color:#ef4444; font-weight:600;">+1 (888) 555-CROP (2767) ext. 911</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== GET STARTED ===== -->
+    <section id="getstarted" class="get-started">
+        <div class="container">
+            <h2>Start <span class="highlight">Optimizing</span> Your Farm Today</h2>
+            <p>Deploy AgroPulse on your fields in days. Start detecting deficiencies, forecasting yields, and maximizing harvests.</p>
+            <div class="steps">
+                <div class="step">
+                    <div class="num">1</div>
+                    <h4>Connect</h4>
+                    <p>Provide field boundaries and connect your existing drone, satellite, or soil sensor data.</p>
+                </div>
+                <div class="step">
+                    <div class="num">2</div>
+                    <h4>Analyze</h4>
+                    <p>Our AI ingests your data and begins leaf-level canopy analysis in real-time.</p>
+                </div>
+                <div class="step">
+                    <div class="num">3</div>
+                    <h4>Harvest</h4>
+                    <p>Receive precise yield forecasts, prescription maps, and optimal harvest timing.</p>
+                </div>
+            </div>
+            <a href="#contact" class="btn-primary" style="background:linear-gradient(135deg, #4ade80, #16a34a); box-shadow: 0 8px 30px rgba(22,163,74,0.4);"><i class="fas fa-rocket"></i> Start Your Free Trial</a>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="logo" style="color:#fff; font-size:1.6rem;"><span class="leaf-icon" style="color:#4ade80;">🌾</span>Agro<span style="color:#4ade80;">Pulse</span></div>
+                    <p style="margin-top:10px; max-width:280px; font-size:0.95rem;">AI-powered computer vision canopy analysis and autonomous crop yield forecasting for commercial agriculture.</p>
+                </div>
+                <div>
+                    <h4>Platform</h4>
+                    <a href="#platform">AI Features</a>
+                    <a href="#why">Why AgroPulse</a>
+                    <a href="#testimonials">Case Studies</a>
+                    <a href="#contact">Support</a>
+                </div>
+                <div>
+                    <h4>Legal</h4>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Data Compliance</a>
+                    <a href="#">Industry Standards</a>
+                </div>
+                <div>
+                    <h4>Connect</h4>
+                    <div class="social">
+                        <i class="fab fa-linkedin"></i>
+                        <i class="fab fa-youtube"></i>
+                        <i class="fab fa-x-twitter"></i>
+                        <i class="fab fa-github"></i>
+                    </div>
+                    <p style="margin-top:12px; font-size:0.85rem;">📬 info@agropulse.ai</p>
+                    <p style="font-size:0.85rem;">📞 +1 (888) 555-CROP</p>
+                </div>
+            </div>
+            <div class="bottom">
+                <span>&copy; 2026 AgroPulse. All rights reserved.</span>
+                <span><i class="fas fa-seedling" style="color:#4ade80;"></i> AI for global food security</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // Hamburger toggle
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('open');
+        });
+
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('open');
+            });
+        });
+
+        // ===== CANOPY GRID SIMULATOR =====
+        const canopyGrid = document.getElementById('canopyGrid');
+        const cols = 12;
+        const rows = 10;
+        const cellTypes = ['healthy', 'healthy', 'healthy', 'healthy', 'moderate', 'moderate', 'stressed', 'critical', 'bare'];
+
+        function generateCanopyGrid() {
+            let html = '';
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    // Create a somewhat natural pattern with deterministic variation
+                    const seed = (r * 7 + c * 13 + r * c * 3 + r * r + c * c) % 20;
+                    let type;
+                    if (seed < 8) type = 'healthy';
+                    else if (seed < 12) type = 'moderate';
+                    else if (seed < 14) type = 'stressed';
+                    else if (seed < 15) type = 'critical';
+                    else if (seed < 17) type = 'bare';
+                    else type = 'healthy';
+
+                    html += `<div class="cell ${type}" data-row="${r}" data-col="${c}" title="Zone ${r+1}-${c+1}: ${type}"></div>`;
+                }
+            }
+            canopyGrid.innerHTML = html;
+        }
+
+        generateCanopyGrid();
+
+        // Update canopy grid periodically (simulate AI scanning and changes)
+        setInterval(() => {
+            const cells = document.querySelectorAll('.cell');
+            if (cells.length === 0) return;
+            // Randomly update 20-40 cells (simulating field variability)
+            const numUpdates = Math.floor(Math.random() * 20) + 20;
+            const indices = Array.from({length: cells.length}, (_, i) => i);
+            const shuffled = indices.sort(() => 0.5 - Math.random());
+            for (let i = 0; i < numUpdates && i < shuffled.length; i++) {
+                const idx = shuffled[i];
+                const cell = cells[idx];
+                const types = ['healthy', 'healthy', 'healthy', 'moderate', 'moderate', 'stressed', 'critical', 'bare'];
+                const newType = types[Math.floor(Math.random() * types.length)];
+                cell.className = `cell ${newType}`;
+                cell.title = `Zone: ${newType}`;
+            }
+
+            // Update sensor readings
+            const soilMoisture = document.getElementById('soilMoisture');
+            const soilTemp = document.getElementById('soilTemp');
+            const nitrogen = document.getElementById('nitrogen');
+            const ndvi = document.getElementById('ndvi');
+            const canopyTemp = document.getElementById('canopyTemp');
+            const humidity = document.getElementById('humidity');
+
+            if (soilMoisture) soilMoisture.innerHTML = `${Math.floor(28 + Math.random() * 12)} <span>%</span>`;
+            if (soilTemp) soilTemp.innerHTML = `${Math.floor(18 + Math.random() * 8)} <span>°C</span>`;
+            if (nitrogen) nitrogen.innerHTML = `${Math.floor(35 + Math.random() * 20)} <span>ppm</span>`;
+            if (ndvi) ndvi.textContent = (0.65 + Math.random() * 0.25).toFixed(2);
+            if (canopyTemp) canopyTemp.innerHTML = `${Math.floor(22 + Math.random() * 8)} <span>°C</span>`;
+            if (humidity) humidity.innerHTML = `${Math.floor(55 + Math.random() * 20)} <span>%</span>`;
+
+            // Update metrics
+            const canopyHealthEl = document.getElementById('canopyHealth');
+            const waterStressEl = document.getElementById('waterStress');
+            const diseaseRiskEl = document.getElementById('diseaseRisk');
+            const estYieldEl = document.getElementById('estYield');
+
+            if (canopyHealthEl) {
+                const health = Math.floor(80 + Math.random() * 15);
+                canopyHealthEl.textContent = `${health}%`;
+                canopyHealthEl.className = `value ${health > 88 ? 'good' : health > 82 ? 'warning' : 'danger'}`;
+            }
+            if (waterStressEl) {
+                const stress = Math.floor(10 + Math.random() * 20);
+                waterStressEl.textContent = `${stress}%`;
+                waterStressEl.className = `value ${stress > 22 ? 'danger' : stress > 16 ? 'warning' : 'good'}`;
+            }
+            if (diseaseRiskEl) {
+                const risks = ['Low', 'Moderate', 'Elevated'];
+                const risk = risks[Math.floor(Math.random() * risks.length)];
+                diseaseRiskEl.textContent = risk;
+                diseaseRiskEl.className = `value ${risk === 'Elevated' ? 'danger' : risk === 'Moderate' ? 'warning' : 'good'}`;
+            }
+            if (estYieldEl) {
+                const yieldEst = Math.floor(88 + Math.random() * 12);
+                estYieldEl.textContent = `${yieldEst}%`;
+                estYieldEl.className = `value ${yieldEst > 94 ? 'good' : yieldEst > 90 ? 'warning' : 'danger'}`;
+            }
+
+            // Update harvest bar
+            const harvestFill = document.getElementById('harvestFill');
+            const harvestLabel = document.getElementById('harvestLabel');
+            if (harvestFill) {
+                const readiness = Math.floor(70 + Math.random() * 20);
+                harvestFill.style.width = `${readiness}%`;
+                harvestLabel.textContent = `${readiness}%`;
+            }
+
+            // Update alerts
+            const dashAlerts = document.getElementById('dashAlerts');
+            if (dashAlerts && dashAlerts.children.length > 0) {
+                const alerts = [
+                    { icon: 'warning', iconClass: 'fa-exclamation-triangle', text: 'Nitrogen Deficiency', sub: 'Zone 4 — Apply 40kg/ha', time: 'Just now' },
+                    { icon: 'success', iconClass: 'fa-check', text: 'Optimal Irrigation', sub: 'Zone 2 — Moisture at 34%', time: '3 min ago' },
+                    { icon: 'warning', iconClass: 'fa-exclamation-triangle', text: 'Pest Pressure Rising', sub: 'Zone 7 — Scouting advised', time: '8 min ago' },
+                    { icon: 'success', iconClass: 'fa-check', text: 'Yield Forecast Updated', sub: 'Est. +4% vs last week', time: '12 min ago' },
+                    { icon: 'warning', iconClass: 'fa-exclamation-triangle', text: 'Water Stress Detected', sub: 'Zone 9 — Irrigate within 48hrs', time: '18 min ago' },
+                ];
+                const firstAlert = dashAlerts.children[0];
+                if (firstAlert) {
+                    const alertData = alerts[Math.floor(Math.random() * alerts.length)];
+                    const iconDiv = firstAlert.querySelector('.alert-icon');
+                    const textDiv = firstAlert.querySelector('div');
+                    const timeSpan = firstAlert.querySelector('.alert-time');
+
+                    iconDiv.className = `alert-icon ${alertData.icon}`;
+                    iconDiv.innerHTML = `<i class="fas ${alertData.iconClass}"></i>`;
+                    textDiv.innerHTML = `<strong style="color:${alertData.icon === 'danger' ? '#ef4444' : alertData.icon === 'warning' ? '#f59e0b' : '#22c55e'};">${alertData.text}</strong><br />${alertData.sub}`;
+                    timeSpan.textContent = alertData.time;
+
+                    dashAlerts.appendChild(firstAlert);
+                }
+            }
+        }, 5000);
+
+        // Contact form
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('✅ Your demo request has been received! An AgroPulse specialist will contact you within 2 hours.');
+            this.reset();
+        });
+    </script>
+
+</body>
+</html>
